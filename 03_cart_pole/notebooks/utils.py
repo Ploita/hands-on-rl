@@ -18,7 +18,7 @@ def snake_to_camel(word):
 
 def get_agent_id(env_name: str) -> str:
     """"""
-    from src.config import SAVED_AGENTS_DIR
+    from config import SAVED_AGENTS_DIR
 
     dir = Path(SAVED_AGENTS_DIR) / env_name
     if not dir.exists():
@@ -102,7 +102,7 @@ def get_success_rate_from_n_steps(env: gym.Env, steps: List[int]):
 def get_observation_samples(env: gym.Env, n_samples: int) -> np.array:
     """"""
     samples = []
-    state = env.reset()
+    state = env.reset()[0]
     while len(samples) < n_samples:
 
         samples.append(np.copy(state))
@@ -110,7 +110,7 @@ def get_observation_samples(env: gym.Env, n_samples: int) -> np.array:
         next_state, reward, done, info = env.step(action)
 
         if done:
-            state = env.reset()
+            state = env.reset()[0]
         else:
             state = next_state
 
@@ -153,7 +153,7 @@ def get_num_model_parameters(model: nn.Module) -> int:
 # import pandas as pd
 # import git
 
-# from src.io import get_list_files
+# from io import get_list_files
 
 
 # def get_project_root() -> Path:

@@ -24,9 +24,9 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from torch.nn import functional as F
 
-from src.model_factory import get_model
-from src.agent_memory import AgentMemory
-from src.utils import (
+from model_factory import get_model
+from agent_memory import AgentMemory
+from utils import (
     get_agent_id,
     get_input_output_dims,
     get_epsilon_decay_fn,
@@ -35,8 +35,8 @@ from src.utils import (
     set_seed,
     get_num_model_parameters
 )
-from src.loops import train
-from src.config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR
+from loops import train
+from config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR
 
 
 class QAgent:

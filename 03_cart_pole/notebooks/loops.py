@@ -33,7 +33,7 @@ def train(
 
     for i in tqdm(range(0, n_episodes)):
 
-        state = env.reset()
+        state = env.reset()[0]
 
         rewards = 0
         steps = 0
@@ -74,7 +74,7 @@ def train(
                                                 n_episodes=n_episodes_evaluate_agent,
                                                 epsilon=0.01)
 
-            # from src.utils import get_success_rate_from_n_steps
+            # from utils import get_success_rate_from_n_steps
             # success_rate = get_success_rate_from_n_steps(env, eval_steps)
             print(f'Reward mean: {np.mean(eval_rewards):.2f}, std: {np.std(eval_rewards):.2f}')
             print(f'Num steps mean: {np.mean(eval_steps):.2f}, std: {np.std(eval_steps):.2f}')
@@ -96,7 +96,7 @@ def evaluate(
     seed: Optional[int] = 0,
 ) -> Tuple[List, List]:
 
-    from src.utils import set_seed
+    from utils import set_seed
     set_seed(env, seed)
 
     # output metrics
@@ -105,7 +105,7 @@ def evaluate(
 
     for i in tqdm(range(0, n_episodes)):
 
-        state = env.reset()
+        state = env.reset()[0]
         rewards = 0
         steps = 0
         done = False

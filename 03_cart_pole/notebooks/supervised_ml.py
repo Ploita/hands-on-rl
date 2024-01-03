@@ -17,11 +17,11 @@ import torch.optim as optim
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 
-from src.model_factory import get_model
-from src.utils import set_seed
-from src.loops import evaluate
-from src.q_agent import QAgent
-from src.config import DATA_SUPERVISED_ML, SAVED_AGENTS_DIR, TENSORBOARD_LOG_DIR
+from model_factory import get_model
+from utils import set_seed
+from loops import evaluate
+from q_agent import QAgent
+from config import DATA_SUPERVISED_ML, SAVED_AGENTS_DIR, TENSORBOARD_LOG_DIR
 
 
 global_train_step = 0
@@ -52,7 +52,7 @@ def simulate_episode(env, agent) -> List[Dict]:
     states and actions
     """
     done = False
-    state = env.reset()
+    state = env.reset()[0]
     samples = []
     while not done:
 
@@ -110,7 +110,7 @@ class OptimalPolicyDataset(Dataset):
 def get_tensorboard_writer(run_name: str):
 
     from torch.utils.tensorboard import SummaryWriter
-    from src.config import TENSORBOARD_LOG_DIR
+    from config import TENSORBOARD_LOG_DIR
     tensorboard_writer = SummaryWriter(TENSORBOARD_LOG_DIR / 'sml' / run_name)
     return tensorboard_writer
 

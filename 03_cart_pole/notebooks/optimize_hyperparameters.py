@@ -7,11 +7,11 @@ import gym
 import numpy as np
 import mlflow
 
-from src.q_agent import QAgent
-from src.utils import get_agent_id
-from src.config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR, OPTUNA_DB
-from src.utils import set_seed
-from src.loops import train, evaluate
+from q_agent import QAgent
+from utils import get_agent_id
+from config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR, OPTUNA_DB
+from utils import set_seed
+from loops import train, evaluate
 
 
 def sample_hyper_parameters(

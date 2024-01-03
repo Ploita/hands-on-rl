@@ -6,7 +6,7 @@ from typing import Optional
 import pandas as pd
 import gym
 
-from src.config import SAVED_AGENTS_DIR
+from config import SAVED_AGENTS_DIR
 
 import numpy as np
 
@@ -14,7 +14,7 @@ import numpy as np
 def show_video(agent, env, sleep_sec: float = 0.1, seed: Optional[int] = 0, mode: str = "rgb_array"):
 
     env.seed(seed)
-    state = env.reset()
+    state = env.reset()[0]
 
     # LAPADULA
     if mode == "rgb_array":
@@ -52,11 +52,11 @@ if __name__ == '__main__':
     parser.add_argument('--sleep_sec', type=float, required=False, default=0.1)
     args = parser.parse_args()
 
-    from src.base_agent import BaseAgent
+    from base_agent import BaseAgent
     agent_path = SAVED_AGENTS_DIR / args.agent_file
     agent = BaseAgent.load_from_disk(agent_path)
 
-    from src.q_agent import QAgent
+    from q_agent import QAgent
 
 
     env = gym.make('CartPole-v1')

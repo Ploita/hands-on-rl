@@ -17,7 +17,7 @@ def train(
     pbar = tqdm(range(0, n_episodes))
     for i in pbar:
 
-        state = env.reset()
+        state = env.reset()[0]
 
         rewards = 0
         max_position = -99
@@ -34,8 +34,8 @@ def train(
 
             action = agent.get_action(state, epsilon_)
 
-            next_state, reward, done, info = env.step(action)
-
+            next_state, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
             agent.update_parameters(state, action, reward, next_state, epsilon_)
 
             rewards += reward
@@ -63,7 +63,7 @@ def evaluate(
 
     for i in tqdm(range(0, n_episodes)):
 
-        state = env.reset()
+        state = env.reset()[0]
 
         rewards = 0
         max_position = -99
@@ -76,8 +76,9 @@ def evaluate(
                 epsilon_ = epsilon if isinstance(epsilon, float) else epsilon(i)
             action = agent.get_action(state, epsilon_)
 
-            next_state, reward, done, info = env.step(action)
-
+            next_state, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
+            
             agent.update_parameters(state, action, reward, next_state, epsilon_)
 
             rewards += reward

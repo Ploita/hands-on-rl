@@ -5,7 +5,7 @@ from pdb import set_trace as stop
 import pandas as pd
 import gym
 
-from src.config import SAVED_AGENTS_DIR
+from config import SAVED_AGENTS_DIR
 
 import numpy as np
 
@@ -51,7 +51,7 @@ def plot_policy(agent, positions: np.arange, velocities: np.arange, figsize = No
 
 def show_video(agent, env, sleep_sec: float = 0.1, mode: str = "rgb_array"):
 
-    state = env.reset()
+    state = env.reset()[0]
     done = False
 
     # LAPADULA
@@ -63,12 +63,13 @@ def show_video(agent, env, sleep_sec: float = 0.1, mode: str = "rgb_array"):
 
     while not done:
 
-        action = agent.get_action(state)
-        state, reward, done, info = env.step(action)
+        action = agent.get_action(state, None)
+        state, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
         # LAPADULA
         if mode == "rgb_array":
             steps += 1
-            frame = env.render(mode=mode)
+            frame = env.render()
             ax.cla()
             ax.axes.yaxis.set_visible(False)
             ax.imshow(frame, extent=[env.min_position, env.max_position, 0, 1])

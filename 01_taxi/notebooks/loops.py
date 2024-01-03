@@ -24,7 +24,7 @@ def train(
 
     for i in tqdm(range(0, n_episodes)):
 
-        state = env.reset()
+        state = env.reset()[0]
 
         epochs, penalties, reward, = 0, 0, 0
         done = False
@@ -38,7 +38,9 @@ def train(
                 # Exploit learned values
                 action = agent.get_action(state)
 
-            next_state, reward, done, info = env.step(action)
+            next_state, reward, terminated, truncated, _ = env.step(action)
+
+            done = terminated or truncated
 
             agent.update_parameters(state, action, reward, next_state)
 
@@ -81,7 +83,7 @@ def evaluate(
             env.s = initial_state
         else:
             # random starting state
-            state = env.reset()
+            state = env.reset()[0]
 
         epochs, penalties, reward, = 0, 0, 0
         frames = []
