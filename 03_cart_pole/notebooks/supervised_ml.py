@@ -64,7 +64,8 @@ def simulate_episode(env, agent) -> List[Dict]:
             's3': state[3],
             'action': action
         })
-        state, reward, done, info = env.step(action)
+        state, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
 
     return samples
 

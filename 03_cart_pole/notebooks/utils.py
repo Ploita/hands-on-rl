@@ -107,8 +107,9 @@ def get_observation_samples(env: gym.Env, n_samples: int) -> np.array:
 
         samples.append(np.copy(state))
         action = env.action_space.sample()
-        next_state, reward, done, info = env.step(action)
-
+        next_state, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
+        
         if done:
             state = env.reset()[0]
         else:
@@ -128,7 +129,7 @@ def set_seed(
     import numpy as np
     np.random.seed(seed)
 
-    env.seed(seed)
+    #env.seed(seed)
     env.action_space.seed(seed)
 
     import torch

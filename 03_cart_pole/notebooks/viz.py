@@ -13,7 +13,6 @@ import numpy as np
 
 def show_video(agent, env, sleep_sec: float = 0.1, seed: Optional[int] = 0, mode: str = "rgb_array"):
 
-    env.seed(seed)
     state = env.reset()[0]
 
     # LAPADULA
@@ -27,12 +26,12 @@ def show_video(agent, env, sleep_sec: float = 0.1, seed: Optional[int] = 0, mode
     while not done:
 
         action = agent.act(state, epsilon=0.001)
-        state, reward, done, info = env.step(action)
-
+        state, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
         # LAPADULA
         if mode == "rgb_array":
             steps += 1
-            frame = env.render(mode=mode)
+            frame = env.render()
             ax.cla()
             ax.axes.yaxis.set_visible(False)
             ax.imshow(frame)

@@ -44,7 +44,8 @@ def train(
 
             # agents takes a step and the environment throws out a new state and
             # a reward
-            next_state, reward, done, info = env.step(action)
+            next_state, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
 
             # agent observes transition and stores it for later use
             agent.observe(state, action, reward, next_state, done)
@@ -112,7 +113,8 @@ def evaluate(
         while not done:
 
             action = agent.act(state, epsilon=epsilon)
-            next_state, reward, done, info = env.step(action)
+            next_state, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
 
             rewards += reward
             steps += 1
