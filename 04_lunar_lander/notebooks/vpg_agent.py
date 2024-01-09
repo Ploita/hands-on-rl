@@ -4,7 +4,7 @@ from pathlib import Path
 import json
 from pdb import set_trace as stop
 
-from tqdm import tqdm
+import tqdm
 import numpy as np
 import torch
 from torch.optim import Adam
@@ -12,14 +12,14 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.distributions.categorical import Categorical
 import gym
 
-from src.model_factory import get_model
-from src.utils import (
+from model_factory import get_model
+from utils import (
     get_agent_id,
     set_seed,
     get_num_model_parameters,
     get_logger, get_model_path
 )
-from src.config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR
+from config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR
 
 def reward_to_go(rews):
 
@@ -42,7 +42,7 @@ class VPGAgent:
         assert gradient_weights in {'rewards', 'rewards-to-go'}
 
         self.env_name = env_name
-        self.env = gym.make(env_name)
+        self.env = gym.make(env_name, render_mode = 'rgb_array')
         self.obs_dim = self.env.observation_space.shape[0]
         self.act_dim = self.env.action_space.n
 
@@ -84,15 +84,16 @@ class VPGAgent:
     ):
         """
         """
-        total_steps = 0
         save_model = True if model_path is not None else False
 
         best_avg_reward = -np.inf
 
         # fix seeds to ensure reproducible training runs
         set_seed(self.env, seed)
+        outter = tqdm.tqdm(range(n_policy_updates), desc="Training", unit="epoch", position=0, leave = True)
 
-        for i in range(n_policy_updates):
+
+        for i in outter:
 
             # use current policy to collect trajectories
             states, actions, weights, rewards = self._collect_trajectories(n_samples=batch_size)
@@ -101,13 +102,18 @@ class VPGAgent:
             loss = self._update_parameters(states, actions, weights)
 
             # log epoch metrics
-            print('epoch: %3d \t loss: %.3f \t reward: %.3f' % (i, loss, np.mean(rewards)))
+            '''print('epoch: %3d \t loss: %.3f \t reward: %.3f' % (i, loss, np.mean(rewards)))
             if logger is not None:
                 # we use total_steps instead of epoch to render all plots in Tensorboard comparable
                 # Agents wit different batch_size (aka steps_per_epoch) are fairly compared this way.
                 total_steps += batch_size
                 logger.add_scalar('train/loss', loss, total_steps)
-                logger.add_scalar('train/episode_reward', np.mean(rewards), total_steps)
+                logger.add_scalar('train/episode_reward', np.mean(rewards), total_steps)'''
+            
+            info_str = f"epoch: {i:3d} \t loss: {loss:.3f} \t reward: {np.mean(rewards):.3f}"
+            info_str = info_str.ljust(80)
+            outter.set_postfix_str(info_str, refresh=True)
+
 
             # evaluate the agent on a fixed set of 100 episodes
             if (i + 1) % freq_eval == 0:
@@ -117,11 +123,10 @@ class VPGAgent:
                 avg_success_rate = np.mean(success)
                 if save_model and (avg_reward > best_avg_reward):
                     self.save_to_disk(model_path)
-                    print(f'Best model! Average reward = {avg_reward:.2f}, Success rate = {avg_success_rate:.2%}')
-
+                    print(f'New best model! Average reward = {avg_reward:.2f}, Success rate = {avg_success_rate:.2%}')
                     best_avg_reward = avg_reward
 
-    def evaluate(self, n_episodes: Optional[int] = 100, seed: Optional[int] = 1234) -> Tuple[List[float], List[float]]:
+    def evaluate(self, n_episodes: int = 100, seed: Optional[int] = 1234) -> Tuple[List[float], List[float]]:
         """
         """
         # output metrics
@@ -129,12 +134,13 @@ class VPGAgent:
         success_per_episode = []
 
         # fix seed
-        self.env.seed(seed)
+        #self.env.seed(seed)
         self.env.action_space.seed(seed)
 
-        for i in tqdm(range(0, n_episodes)):
+        
+        for _ in range(0, n_episodes):
 
-            state = self.env.reset()
+            state = self.env.reset()[0]
             rewards = 0
             done = False
             reward = None
@@ -142,7 +148,8 @@ class VPGAgent:
 
                 action = self.act(torch.as_tensor(state, dtype=torch.float32))
 
-                next_state, reward, done, info = self.env.step(action)
+                next_state, reward, terminated, truncated, _ = self.env.step(action)
+                done = terminated or truncated
                 rewards += reward
 
                 state = next_state
@@ -162,7 +169,7 @@ class VPGAgent:
         batch_lens = []         # for measuring episode lengths
 
         # reset episode-specific variables
-        obs = self.env.reset()       # first obs comes from starting distribution
+        obs = self.env.reset()[0]       # first obs comes from starting distribution
         done = False            # signal from environment that episode is over
         ep_rews = []            # list for rewards accrued throughout ep
 
@@ -175,7 +182,8 @@ class VPGAgent:
             # act in the environment
             # act = get_action(torch.as_tensor(obs, dtype=torch.float32))
             action = self.act(torch.as_tensor(obs, dtype=torch.float32))
-            obs, rew, done, _ = self.env.step(action)
+            obs, rew, terminated, truncated, _ = self.env.step(action)
+            done = terminated or truncated
 
             # save action, reward
             batch_acts.append(action)
@@ -198,7 +206,7 @@ class VPGAgent:
                     raise NotImplemented
 
                 # reset episode-specific variables
-                obs, done, ep_rews = self.env.reset(), False, []
+                obs, done, ep_rews = self.env.reset()[0], False, []
 
                 # end experience loop if we have enough of it
                 if len(batch_obs) > n_samples:

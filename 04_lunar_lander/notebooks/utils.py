@@ -8,7 +8,7 @@ from pdb import set_trace as stop
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 
-from src.config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR
+from config import TENSORBOARD_LOG_DIR, SAVED_AGENTS_DIR
 
 
 # def snake_to_camel(word):
@@ -47,7 +47,7 @@ def set_seed(
     import numpy as np
     np.random.seed(seed)
 
-    env.seed(seed)
+    
     env.action_space.seed(seed)
 
     import torch

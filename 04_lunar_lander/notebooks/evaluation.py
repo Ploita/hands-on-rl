@@ -11,7 +11,7 @@ def evaluate(
     seed: Optional[int] = 0,
 ) -> Tuple[List, List]:
 
-    # from src.utils import set_seed
+    # from utils import set_seed
     # set_seed(env, seed)
 
     # output metrics
