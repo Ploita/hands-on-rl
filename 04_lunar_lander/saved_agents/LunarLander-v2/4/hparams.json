@@ -1,0 +1,1 @@
+{"learning_rate": 0.003, "hidden_layers": [64], "gradient_weights": "rewards-to-go"}
